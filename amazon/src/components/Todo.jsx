@@ -56,10 +56,17 @@ const Todo = () => {
   /* MOVE */
   const moveTask = async (from, to, index) => {
     const task = tasks[from][index];
-    if (!task || !task.id) return;
+    if (!task || !task.id) {
+      console.log("Task or ID missing");
+      return;
+    }
 
     const newStatus =
       to === "pending" ? "PENDING" : "COMPLETED";
+
+    console.log("Before move API call:");
+    console.log("Task from state:", task);
+    console.log("Calculated new status:", newStatus);
 
     await fetch(`${API_URL}/${task.id}`, {
       method: "PUT",
@@ -72,9 +79,9 @@ const Todo = () => {
       })
     });
 
-    // 🔁 RELOAD FROM DATABASE (THIS IS THE KEY)
-    loadTodos();
+    loadTodos(); // reload from DB
   };
+
 
   const loadTodos = () => {
     fetch(API_URL)
@@ -184,9 +191,11 @@ const Todo = () => {
         tasks={tasks.completed}
         editMode={editMode}
         setEditMode={setEditMode}
+        onMove={null}          // ❌ NO MOVE
         onEdit={openEdit}
         onDelete={deleteTask}
       />
+
 
       {/* EDIT MODAL */}
       <div className="modal fade" id="editModal" tabIndex="-1">
@@ -263,10 +272,11 @@ const Section = ({
         key={index}
         task={task}
         showActions={editMode === category}
-        onMove={onMove}
+        onMove={onMove ? () => onMove(index) : null}   // ✅ CONDITIONAL
         onEdit={() => onEdit(category, task, index)}
         onDelete={() => onDelete(category, index)}
       />
+
     ))}
   </>
 );
@@ -287,11 +297,20 @@ const TaskItem = ({ task, showActions, onMove, onEdit, onDelete }) => {
           )}
         </div>
 
-        <div className="ms-3">
-          {showActions ? (
+        <div className="ms-3 d-flex gap-1">
+          {onMove && (
+            <button
+              className="btn btn-sm btn-success"
+              onClick={onMove}
+            >
+              Move
+            </button>
+          )}
+
+          {showActions && (
             <>
               <button
-                className="btn btn-sm btn-warning me-1"
+                className="btn btn-sm btn-warning"
                 onClick={onEdit}
               >
                 Edit
@@ -303,17 +322,9 @@ const TaskItem = ({ task, showActions, onMove, onEdit, onDelete }) => {
                 Delete
               </button>
             </>
-          ) : (
-            onMove && (
-              <button
-                className="btn btn-sm btn-success"
-                onClick={onMove}
-              >
-                Move
-              </button>
-            )
           )}
         </div>
+
       </div>
     </div>
   );

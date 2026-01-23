@@ -42,8 +42,15 @@ public class TodoContoller {
 
     @PutMapping("/{id}")
     public Todo update(@PathVariable Integer id, @RequestBody Todo todo) {
-        todo.setId(id);
-        return todoRepo.save(todo);
+
+        Todo existing = todoRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Todo not found"));
+
+        existing.setName(todo.getName());
+        existing.setDescription(todo.getDescription());
+        existing.setStatus(todo.getStatus());
+
+        return todoRepo.save(existing);
     }
 
     @DeleteMapping("/{id}")
