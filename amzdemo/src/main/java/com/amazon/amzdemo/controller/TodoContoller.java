@@ -3,20 +3,10 @@ package com.amazon.amzdemo.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.amazon.amzdemo.entity.Todo;
-import com.amazon.amzdemo.repo.TodoRepo;
-
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import com.amazon.amzdemo.service.TodoService;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -24,37 +14,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class TodoContoller {
 
     @Autowired
-    private TodoRepo todoRepo;
-
-    public TodoContoller(TodoRepo todoRepo) {
-        this.todoRepo = todoRepo;
-    }
+    private TodoService todoService;
 
     @GetMapping
     public List<Todo> getAll() {
-        return todoRepo.findAll();
+        return todoService.getAllTodos();
     }
 
     @PostMapping
     public Todo create(@RequestBody Todo todo) {
-        return todoRepo.save(todo);
+        return todoService.createTodo(todo);
     }
 
     @PutMapping("/{id}")
     public Todo update(@PathVariable Integer id, @RequestBody Todo todo) {
-
-        Todo existing = todoRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Todo not found"));
-
-        existing.setName(todo.getName());
-        existing.setDescription(todo.getDescription());
-        existing.setStatus(todo.getStatus());
-
-        return todoRepo.save(existing);
+        return todoService.updateTodo(id, todo);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
-        todoRepo.deleteById(id);
+        todoService.deleteTodo(id);
     }
 }

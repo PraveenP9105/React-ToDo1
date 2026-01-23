@@ -4,7 +4,6 @@ import { getDatabase } from "firebase/database";
 
 //firebase config
 
-
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
